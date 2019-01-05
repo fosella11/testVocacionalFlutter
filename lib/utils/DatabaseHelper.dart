@@ -3,6 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 // A Flutter plugin for finding commonly used locations on the filesystem. Supports iOS and Android.
 import 'package:path_provider/path_provider.dart';
+import 'package:vocacional/models/Question.dart';
 
 class DatabaseHelper {
 
@@ -56,6 +57,7 @@ class DatabaseHelper {
 
   //DB CRUD
 
+  //Get all objects from DB
   Future<List<Map<String, dynamic>>> getQuestionsMapList() async{
     Database db = await this.database;
 
@@ -63,4 +65,63 @@ class DatabaseHelper {
     return result;
   }
 
+  //insert operation, add question to db
+  Future<int> insertQuestion(Question question) async {
+    Database database = await this.database;
+    var result = await database.insert(questionTable, question.toMap());
+    return result;
+  }
+
+  //Update operation: Update a Question on the DB
+  Future<int> updateQuestion(Question question) async {
+    var database = await this.database;
+    var result = await database.update(questionTable, question.toMap(), where: '$colId ?', whereArgs: [question.id]);
+    return result;
+  }
+  
+  //Delete operation, delete question from DB
+  Future<int> deleteQuestion(int id) async {
+    var database = await this.database;
+    int result = await database.rawDelete('DELETE FROM $questionTable WHERE $colId = $id');
+    return result;
+  }
+
+  //Get number of Questions in DB
+  Future<int> getCount() async {
+    Database database = await this.database;
+    List<Map<String, dynamic>> x = await database.rawQuery('SELECT COUNT (*) from $questionTable');
+    int result = Sqflite.firstIntValue(x);
+    return result;
+  }
+
+  //Get the Map list [List<Map>] and convert it to Question List [List<Note>]
+  Future<List<Question>> getQuestionList() async {
+    var questionMapList = await getQuestionsMapList();
+    int count = questionMapList.length;
+
+    List<Question> questionList = List<Question>();
+    // For loop to create a 'Question List from 'Map List'
+
+    for (int i = 0 ; i < count; i++) {
+      questionList.add(Question.fromMapObject(questionMapList[i]));
+    }
+
+    return questionList;
+  }
+
+  //Get number of Questions in DB
+  Future<int> getResultQuestion() async {
+    var questionMapList = await getQuestionsMapList();
+    int count = questionMapList.length;
+    int resultLogic = 0;
+   // For loop to create a 'Question List from 'Map List'
+
+    for (int i = 0 ; i < count; i++) {
+      if(!Question.fromMapObject(questionMapList[i]).responded){
+    return 0;
+    }else {
+      resultLogic += Question.fromMapObject(questionMapList[i]).amount;
+    }
+  }
+  return resultLogic;
 }
