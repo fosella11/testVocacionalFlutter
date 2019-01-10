@@ -114,14 +114,31 @@ class DatabaseHelper {
     var questionMapList = await getQuestionsMapList();
     int count = questionMapList.length;
     int resultLogic = 0;
-   // For loop to create a 'Question List from 'Map List'
+    // For loop to create a 'Question List from 'Map List'
 
-    for (int i = 0 ; i < count; i++) {
-      if(!Question.fromMapObject(questionMapList[i]).responded){
-    return 0;
-    }else {
-      resultLogic += Question.fromMapObject(questionMapList[i]).amount;
+    for (int i = 0; i < count; i++) {
+      if (!Question
+          .fromMapObject(questionMapList[i])
+          .responded) {
+        return 0;
+      } else {
+        resultLogic += Question
+            .fromMapObject(questionMapList[i])
+            .amount;
+      }
     }
+    return resultLogic;
   }
-  return resultLogic;
+
+  void createTestOne(){
+    insertQuestion(Question("Hola", false, false, 1));
+    insertQuestion(Question("Hola", false, false, 2));
+    insertQuestion(Question("Hola", false, false, 3));
+  }
+
+  //update all col with default values to reset history
+  void resetHistoryQuestions(Database dbOne, int newVersion) async {
+
+    await dbOne.execute('UPDATE $questionTable SET $colResponse = 0, $colResponded = 0');
+  }
 }
