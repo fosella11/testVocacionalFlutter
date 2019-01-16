@@ -13,9 +13,9 @@ class DatabaseHelper {
   String questionTable = 'question_table';
   String colId = 'id';
   String colTitle = 'title';
-  String colResponse = 'col_response';
-  String colResponded = 'col_responded';
-  String colAmount = 'col_amount';
+  String colResponse = 'response';
+  String colResponded = 'responded';
+  String colAmount = 'amount';
 
   // the next line is named constructor, used to create instance of DataBaseHelper
   DatabaseHelper._createIntance();
@@ -75,7 +75,7 @@ class DatabaseHelper {
   //Update operation: Update a Question on the DB
   Future<int> updateQuestion(Question question) async {
     var database = await this.database;
-    var result = await database.update(questionTable, question.toMap(), where: '$colId ?', whereArgs: [question.id]);
+    var result = await database.update(questionTable, question.toMap(), where: "$colId = ?", whereArgs: [question.id]);
     return result;
   }
   
@@ -117,9 +117,7 @@ class DatabaseHelper {
     // For loop to create a 'Question List from 'Map List'
 
     for (int i = 0; i < count; i++) {
-      if (!Question
-          .fromMapObject(questionMapList[i])
-          .responded) {
+      if (Question.fromMapObject(questionMapList[i]).responded == 0) {
         return 0;
       } else {
         resultLogic += Question
@@ -131,14 +129,12 @@ class DatabaseHelper {
   }
 
   void createTestOne(){
-    insertQuestion(Question("Hola", false, false, 1));
-    insertQuestion(Question("Hola", false, false, 2));
-    insertQuestion(Question("Hola", false, false, 3));
+    insertQuestion(Question("Hola 1", 0, 0, 1));
+    insertQuestion(Question("Hola 2", 0, 0, 2));
   }
 
   //update all col with default values to reset history
   void resetHistoryQuestions(Database dbOne, int newVersion) async {
-
     await dbOne.execute('UPDATE $questionTable SET $colResponse = 0, $colResponded = 0');
   }
 }

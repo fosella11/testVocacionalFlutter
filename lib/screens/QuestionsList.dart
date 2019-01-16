@@ -6,8 +6,7 @@ import 'package:vocacional/models/Question.dart';
 class QuestionsList extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return null;
+    return QuestionsListState();
   }
 }
 
@@ -32,17 +31,8 @@ class QuestionsListState extends State<QuestionsList> {
             onPressed: () {
               // Call update DB
               //
-              //
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.show_chart),
-            onPressed: () {
-              //
               //Translate app Flutter TODO: https://medium.com/@anilcan/flutter-internationalization-by-using-json-files-f91468d86df0
-              //
-              //
-              //Show result test 1 (Check in logic if the test is complete or toast)
+
               //
             },
           ),
@@ -52,6 +42,7 @@ class QuestionsListState extends State<QuestionsList> {
               //
               //Call test number 2
               //
+              databaseHelper.createTestOne();
             },
           ),
         ],
@@ -79,32 +70,90 @@ class QuestionsListState extends State<QuestionsList> {
 
   ListView getQuestionListView() {
     TextStyle titleStyle = Theme.of(context).textTheme.subhead;
+      return ListView.builder(
+          itemCount: count,
+          itemBuilder: (BuildContext context, int position) {
+            //
+            //Add Logic Own ads or Not
+            //Add Ads Admob
+            //https://pub.dartlang.org/packages/firebase_admob
+            //
+            if(this.questionList[position].amount == 1){
+              return Center(
+                child: Card(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      ListTile(
+                        leading: CircleAvatar(
+                            backgroundColor: getColorStatusQuestion(this.questionList[position].responded)),
+                        title: Text(
+                          this.questionList[position].title,
+                          style: titleStyle,
+                        ),
+                        subtitle: Text(this.questionList[position].id.toString()),
+                      ),
+                      ButtonTheme.bar(
+                        // make buttons use the appropriate styles for cards
+                        child: ButtonBar(
+                          children: <Widget>[
 
-    return ListView.builder(
-        itemCount: count,
-        itemBuilder: (BuildContext context, int position) {
-          return Card(
-            color: Colors.white,
-            elevation: 2.0,
-            child: ListTile(
-              leading: CircleAvatar(backgroundColor: getColorStatusQuestion(0)),
-              title: Text(
-                this.questionList[position].title,
-                style: titleStyle,
-              ),
-              subtitle: Text(this.questionList[position].id.toString()),
-              trailing: GestureDetector(
-                child: Icon(
-                  Icons.delete,
-                  color: Colors.grey,
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                onTap: () {
-                  _delete(context, questionList[position]);
-                },
-              ),
-            ),
-          );
-        });
+              );
+            }else{
+              return Center(
+                child: Card(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      ListTile(
+                        leading: CircleAvatar(
+                            backgroundColor: getColorStatusQuestion(this.questionList[position].responded)),
+                        title: Text(
+                          this.questionList[position].title,
+                          style: titleStyle,
+                        ),
+                        subtitle: Text(this.questionList[position].id.toString()),
+                      ),
+                      ButtonTheme.bar(
+                        // make buttons use the appropriate styles for cards
+                        child: ButtonBar(
+                          children: <Widget>[
+                            FlatButton(
+                              child: const Text('SI'),
+                              onPressed: () {
+                                Question q = this.questionList[position];
+                                q.responded = 1;
+                                q.response = 1;
+                                _updateQuestion(q);
+                                updateListView();
+                              },
+                            ),
+                            FlatButton(
+                              child: const Text('NO'),
+                              onPressed: () {
+                                Question q = this.questionList[position];
+                                q.responded = 1;
+                                q.response = 0;
+                                _updateQuestion(q);
+                                updateListView();
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+          });
   }
 
   Color getColorStatusQuestion(int responded) {
@@ -112,7 +161,7 @@ class QuestionsListState extends State<QuestionsList> {
       case 1:
         return Colors.green;
         break;
-      case 2:
+      case 0:
         return Colors.grey;
         break;
       default:
@@ -124,6 +173,17 @@ class QuestionsListState extends State<QuestionsList> {
     int result = await databaseHelper.deleteQuestion(question.id);
     if (result != 0) {
       _showSnackBar(context, "Updated item yes or no");
+    }
+  }
+
+
+  // Save data to database
+  void _updateQuestion(Question q) async {
+    int result;
+      result = await databaseHelper.updateQuestion(q);
+
+    if (result == 0) {  // Success
+      _showSnackBar(this.context, 'Algo esta mal! No se guardo la respuesta');
     }
   }
 }

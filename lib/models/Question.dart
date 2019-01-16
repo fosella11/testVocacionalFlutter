@@ -2,8 +2,8 @@ class Question {
 
   int _id;
   String _tittle;
-  bool _response;
-  bool _responded;
+  int _response;
+  int _responded;
   int _amount;
 
   Question(this._tittle, this._responded, this._response, this._amount);
@@ -14,17 +14,17 @@ class Question {
 
   String get title => _tittle;
 
-  bool get response => _response;
+  int get response => _response;
 
-  bool get responded => _responded;
+  int get responded => _responded;
 
   int get amount => _amount;
 
-  set response(bool updateResponse){
+  set response(int updateResponse){
     this._response = updateResponse;
   }
 
-  set responded(bool updateResponded){
+  set responded(int updateResponded){
     this._responded = updateResponded;
   }
 
@@ -38,7 +38,7 @@ class Question {
 
     map['title'] = _tittle;
     map['response'] = _response;
-    map['responsed'] = _responded;
+    map['responded'] = _responded;
     map['amount'] = _amount;
 
     return map;
